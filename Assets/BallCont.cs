@@ -14,7 +14,7 @@ public class BallCont : MonoBehaviour
 
     private Rigidbody rb;
 
-    private bool isShoot;
+    public bool isShoot;
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -50,7 +50,10 @@ public class BallCont : MonoBehaviour
     {
 
         if (isShoot)
+        {
+            isShoot = false;
             return;
+        }
 
         rb.AddForce(new Vector3(Force.x, Force.y, z: Force.y) * forceMultiplier);
         isShoot = true;
