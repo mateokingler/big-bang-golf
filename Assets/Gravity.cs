@@ -11,13 +11,32 @@ public class Gravity : MonoBehaviour
 
 	public Rigidbody rb;
 
+	public bool inGravity = false;
+
+	private Rigidbody rbToAttract;
+
+	private GameObject ball;
+
 	void FixedUpdate()
 	{
-		foreach (Gravity attractor in Attractors)
+		if (inGravity)
 		{
-			if (attractor != this)
-				Attract(attractor);
+			Vector3 direction = rb.position - rbToAttract.position;
+			float distance = direction.magnitude;
+
+			if (distance == 0f)
+			{
+				return;
+			}
+
+
+			float forceMagnitude = G * (rb.mass * rbToAttract.mass) / Mathf.Pow(distance, 2);
+			Vector3 force = direction.normalized * forceMagnitude;
+
+			rbToAttract.AddForce(force);
+
 		}
+
 	}
 
 	void OnEnable()
@@ -25,7 +44,10 @@ public class Gravity : MonoBehaviour
 		if (Attractors == null)
 			Attractors = new List<Gravity>();
 
+		rb.mass = 0.0001f;
 		Attractors.Add(this);
+
+		Debug.Log(this);
 	}
 
 	void OnDisable()
@@ -33,20 +55,20 @@ public class Gravity : MonoBehaviour
 		Attractors.Remove(this);
 	}
 
-	void Attract(Gravity objToAttract)
+
+	void OnTriggerEnter(Collider other)
 	{
-		Rigidbody rbToAttract = objToAttract.rb;
+		if (other.name == "Ball")
+		{
+			
+			rb.mass = 500;
+			rbToAttract = other.gameObject.GetComponent<Rigidbody>();
+			inGravity = true;
+			
+        }
+		
 
-		Vector3 direction = rb.position - rbToAttract.position;
-		float distance = direction.magnitude;
-
-		if (distance == 0f)
-			return;
-
-		float forceMagnitude = G * (rb.mass * rbToAttract.mass) / Mathf.Pow(distance, 2);
-		Vector3 force = direction.normalized * forceMagnitude;
-
-		rbToAttract.AddForce(force);
 	}
+
 
 }
